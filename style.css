@@ -1,0 +1,40 @@
+body {
+  display: flex;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: slategray;
+}
+
+#left-parent-container {
+  display: flex;
+  flex-direction: column;
+  background-color: beige;
+  padding: 5px;
+}
+
+#map-container {
+  background-color: aqua;
+  padding: 5px;
+  width: auto;
+  height: auto;
+}
+
+#timer-container {
+  background-color: blue;
+  padding: 5px;
+  width: auto;
+  height: 20%;
+}
+
+#messages-container {
+  background-color: red;
+  padding: 5px;
+  width: auto;
+  height: 60%;
+}
+
+#stats-container {
+  background-color: green;
+  padding: 5px;
+  width: auto;
+  height: 20%;
+}
