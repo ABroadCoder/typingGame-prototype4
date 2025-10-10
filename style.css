@@ -1,3 +1,9 @@
+:root {
+  --wall-color: grey;
+  --room-color: darkblue;
+  --room-border-color: slategrey;
+}
+
 html {
   height: 100vh;
   width: 100vw;
@@ -25,12 +31,63 @@ body {
 
 #map-container {
   position: relative;
+  display: grid;
+  grid-template-rows: 1fr 20fr 1fr 20fr 1fr 20fr 1fr;
   background-color: aqua;
   background-image: none;
   padding: 5px;
   width: 80%;
   height: auto;
   margin: 5px;
+}
+
+.roomrow {
+  display: grid;
+  grid-template-columns: 1fr 20fr 1fr 20fr 1fr 20fr 1fr;
+}
+
+.room {
+  position: relative;
+  display: block;
+  background-color: var(--room-color);
+  /* border: solid black 1px; */
+  font-size: 50px;
+}
+
+.wallrow {
+  /* position: relative; */
+  display: grid;
+  grid-template-columns: 1fr 20fr 1fr 20fr 1fr 20fr 1fr;
+}
+
+.wall {
+  position: relative;
+  display: block;
+  background-color: var(--wall-color);
+}
+
+.open {
+  background-color: var(--room-color);
+}
+
+.roomrow > .open:not(.entrance):not(.exit)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  left: 50%;
+  background-color: var(--room-border-color);
+}
+
+.wallrow > .open:not(.entrance):not(.exit)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  top: 50%;
+  background-color: var(--room-border-color);
 }
 
 #timer-container {
