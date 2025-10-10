@@ -3,6 +3,21 @@ timerMinutesOnes = document.getElementById('timer-minutes-ones');
 timerSecondsOnes = document.getElementById('timer-seconds-ones');
 timerSecondsTens = document.getElementById('timer-seconds-tens');
 
+// Comments Data Structure
+const messagesObject = {
+  suspectAlmostOut: "Ha! I'm going to escape!",
+  randomTaunts: [
+    "You'll never catch me.",
+    'Better run faster, detective!',
+    'Getting tired?',
+  ],
+  openingScript: [
+    "I'm way ahead of you, detective.",
+    "Just wait--I'll catch you!",
+    "We'll see about that.",
+  ],
+};
+
 // Timer Logic
 function updateTimer() {
   let secondsOnes = parseInt(timerSecondsOnes.innerHTML);
