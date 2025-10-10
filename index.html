@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chase the Suspect!</title>
+    <title>Chase the Fugitive!</title>
     <link href="style.css" rel="stylesheet" />
     <script src="script.js" defer></script>
   </head>
@@ -14,13 +14,77 @@
         <div id="timer-digits-container">
           <div id="timer-minutes-ones" class="timer-digits">0</div>
           <div id="timer-colon" class="timer-digits">:</div>
-          <div id="timer-seconds-tens" class="timer-digits">1</div>
+          <div id="timer-seconds-tens" class="timer-digits">2</div>
           <div id="timer-seconds-ones" class="timer-digits">0</div>
         </div>
       </div>
       <div id="message-container"></div>
       <div id="stats-container"></div>
     </div>
-    <div id="map-container"></div>
+    <div id="map-container">
+      <div class="wallrow">
+        <div class="wall"></div>
+        <div class="wall open entrance"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+      </div>
+      <div class="roomrow">
+        <div class="wall"></div>
+        <div class="room" id="room1">1</div>
+        <div class="wall open"></div>
+        <div class="room" id="room2">2</div>
+        <div class="wall open"></div>
+        <div class="room" id="room3">3</div>
+        <div class="wall"></div>
+      </div>
+      <div class="wallrow">
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall open"></div>
+        <div class="wall"></div>
+      </div>
+      <div class="roomrow">
+        <div class="wall"></div>
+        <div class="room" id="room4">4</div>
+        <div class="wall open"></div>
+        <div class="room" id="room5">5</div>
+        <div class="wall"></div>
+        <div class="room" id="room6">6</div>
+        <div class="wall"></div>
+      </div>
+      <div class="wallrow">
+        <div class="wall"></div>
+        <div class="wall open"></div>
+        <div class="wall"></div>
+        <div class="wall open"></div>
+        <div class="wall"></div>
+        <div class="wall open"></div>
+        <div class="wall"></div>
+      </div>
+      <div class="roomrow">
+        <div class="wall"></div>
+        <div class="room" id="room7">7</div>
+        <div class="wall"></div>
+        <div class="room" id="room8">8</div>
+        <div class="wall open"></div>
+        <div class="room" id="room9">9</div>
+        <div class="wall"></div>
+      </div>
+      <div class="wallrow">
+        <div class="wall"></div>
+        <div class="wall open exit"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+        <div class="wall"></div>
+      </div>
+    </div>
   </body>
 </html>
