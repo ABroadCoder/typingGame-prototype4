@@ -102,11 +102,11 @@ body {
 }
 
 #room1 > .room-portrait {
-  background-image: url('Assets/Detective/portrait.png');
+  background-image: url('detective-portrait.png');
 }
 
 #room4 > .room-portrait {
-  background-image: url('Assets/Fugitive/portrait.png');
+  background-image: url('fugitive-portrait.png');
 }
 
 #timer-container {
