@@ -49,6 +49,8 @@ body {
 .room {
   position: relative;
   display: block;
+  align-items: center;
+  justify-content: center;
   background-color: var(--room-color);
   /* border: solid black 1px; */
   font-size: 50px;
@@ -88,6 +90,23 @@ body {
   height: 1px;
   top: 50%;
   background-color: var(--room-border-color);
+}
+
+.room-portrait {
+  position: relative;
+  top: 10%;
+  left: 40%;
+  width: 100px;
+  height: 100px;
+  /* background-color: white; */
+}
+
+#room1 > .room-portrait {
+  background-image: url('Assets/Detective/portrait.png');
+}
+
+#room4 > .room-portrait {
+  background-image: url('Assets/Fugitive/portrait.png');
 }
 
 #timer-container {
