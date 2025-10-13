@@ -1,11 +1,17 @@
 // HTML Element References
-timerMinutesOnes = document.getElementById('timer-minutes-ones');
-timerSecondsOnes = document.getElementById('timer-seconds-ones');
-timerSecondsTens = document.getElementById('timer-seconds-tens');
+
+const messageContainer = document.getElementById('message-container');
+const timerMinutesOnes = document.getElementById('timer-minutes-ones');
+const timerSecondsOnes = document.getElementById('timer-seconds-ones');
+const timerSecondsTens = document.getElementById('timer-seconds-tens');
+
+// Global Variable Definitions
+let currentMessageId = 0;
 
 // Comments Data Structure
-const messagesObject = {
-  suspectAlmostOut: "Ha! I'm going to escape!",
+
+const messages = {
+  fugitiveAlmostOut: "Ha! I'm going to escape!",
   randomTaunts: [
     "You'll never catch me.",
     'Better run faster, detective!',
@@ -18,7 +24,81 @@ const messagesObject = {
   ],
 };
 
+// Characters Data Structure
+
+const characters = [
+  {
+    name: 'Fugitive',
+    portrait: 'fugitive-portrait.png',
+  },
+  {
+    name: 'Detective',
+    portrait: 'detective-portrait.png',
+  },
+];
+
+// Generated Message Objects Data Structure
+
+let generatedMessages = {};
+
+// Message Element Class
+
+class Message {
+  constructor(character, text) {
+    this.id = currentMessageId;
+    this.character = character;
+    this.text = text;
+    this.el = document.createElement('div');
+    this.create();
+  }
+
+  create() {
+    currentMessageId++;
+
+    messageContainer.appendChild(this.el).classList.add('message');
+
+    const messageHeadingWrapper = document.createElement('div');
+    this.el
+      .appendChild(messageHeadingWrapper)
+      .classList.add('message-heading-wrapper');
+
+    const messageTextContainer = document.createElement('div');
+    this.el
+      .appendChild(messageTextContainer)
+      .classList.add('message-text-container');
+
+    const messagePortraitContainer = document.createElement('div');
+    messageHeadingWrapper
+      .appendChild(messagePortraitContainer)
+      .classList.add('message-portrait-container');
+
+    const messageNameContainer = document.createElement('div');
+    messageHeadingWrapper
+      .appendChild(messageNameContainer)
+      .classList.add('message-name-container');
+
+    const character = this.character;
+    const characterListing = characters.find(c => c.name === character);
+
+    messagePortraitContainer.style.backgroundImage = `url(${characterListing.portrait})`;
+    console.log(`${characterListing.portrait}`);
+
+    messageNameContainer.textContent = character;
+
+    messageTextContainer.textContent = this.text;
+
+    generatedMessages[this.id] = this;
+    console.log(generatedMessages);
+  }
+}
+
+// Messages Testing
+
+new Message('Fugitive', messages.fugitiveAlmostOut);
+new Message('Detective', 'I will catch you!');
+
 // Timer Logic
+
 function updateTimer() {
   let secondsOnes = parseInt(timerSecondsOnes.innerHTML);
   let secondsTens = parseInt(timerSecondsTens.innerHTML);
@@ -46,4 +126,5 @@ function updateTimer() {
 }
 
 // Timer Start
-const startTimer = setInterval(updateTimer, 1000);
+
+// const startTimer = setInterval(updateTimer, 1000);
