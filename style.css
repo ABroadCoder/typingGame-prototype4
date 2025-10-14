@@ -47,13 +47,19 @@ body {
 }
 
 .room {
-  position: relative;
-  display: block;
+  display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--room-color);
   /* border: solid black 1px; */
   font-size: 50px;
+}
+
+.room-portrait {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  /* background-color: white; */
 }
 
 .wallrow {
@@ -92,21 +98,12 @@ body {
   background-color: var(--room-border-color);
 }
 
-.room-portrait {
-  position: relative;
-  top: 10%;
-  left: 40%;
-  width: 100px;
-  height: 100px;
-  /* background-color: white; */
+.contains-detective {
+  background-image: url(detective-portrait.png);
 }
 
-#room1 > .room-portrait {
-  background-image: url('detective-portrait.png');
-}
-
-#room4 > .room-portrait {
-  background-image: url('fugitive-portrait.png');
+.contains-fugitive {
+  background-image: url(fugitive-portrait.png);
 }
 
 #timer-container {
