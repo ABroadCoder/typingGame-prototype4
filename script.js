@@ -198,6 +198,9 @@ const updateFugitivePosition = function() {
 
     if (fugitiveMovementTickAccumulator >= tickLimit) {
         moveCharacterRoomPortrait('Fugitive', nextRoomNumber);
+        if (nextRoomNumber === 10) {
+          gameOver = true;
+      }
         fugitiveMovementTickAccumulator = 0;
     }
 
@@ -205,9 +208,7 @@ const updateFugitivePosition = function() {
         return;
     }
 
-    if (nextRoomNumber === 10) {
-        gameOver = true;
-    }
+   
 }
 
 // Update Detective Position
@@ -222,13 +223,15 @@ const updateDetectivePosition = function() {
         return;
     }
 
-    console.log(gameOver);
+    moveCharacterRoomPortrait('Detective', nextRoomNumber);
 
     if (nextRoomNumber === 10) {
-        gameOver = true;
-    }
+      gameOver = true;
+      console.log(gameOver);
+      return;
+  }
 
-    moveCharacterRoomPortrait('Detective', nextRoomNumber);
+  console.log(gameOver);
 }
 
 // Detective Movement Event Listener (Enter Key Press)
