@@ -1,6 +1,10 @@
 // HTML Element References
 
+const topWrapper = document.getElementById('top-wrapper');
+const bottomWrapper = document.getElementById('bottom-wrapper');
+
 const messageContainer = document.getElementById('message-container');
+const mapContainer = document.getElementById('map-container');
 const timerMinutesOnes = document.getElementById('timer-minutes-ones');
 const timerSecondsOnes = document.getElementById('timer-seconds-ones');
 const timerSecondsTens = document.getElementById('timer-seconds-tens');
@@ -15,22 +19,14 @@ const room7 = document.getElementById('room7');
 const room8 = document.getElementById('room8');
 const room9 = document.getElementById('room9');
 
-// Global Variable Initializations
-let currentMessageId = 0;
-let currentFugitiveRoomNumber = 4;
-let currentDetectiveRoomNumber = 1;
-let initialTimerTimeInTenthsOfSeconds = 130;
-let timerTimeInTenthsOfSeconds = initialTimerTimeInTenthsOfSeconds;
-let fugitiveMovementTimeInterval=0;
-let fugitiveMovementTickAccumulator =0;
-let numberOfRooms = 9;
-let gameOver = false;
+const detective = document.getElementById('detective');
+const fugitive = document.getElementById('fugitive');
 
 // Comments Data Structure
 
 const messages = {
   fugitiveAlmostOut: "Ha! I'm going to escape!",
-  randomTaunts: [
+  taunts: [
     "You'll never catch me.",
     'Better run faster, detective!',
     'Getting tired?',
@@ -44,27 +40,46 @@ const messages = {
 
 // Characters Data Structure
 
-const characters = [
-  {
+const characters = {
+  'fugitive': {
     name: 'Fugitive',
     portrait: 'fugitive-portrait.png',
+    element: '',
+    startingRoomNumber: 4,
+    currentRoomNumber: 4,
   },
-  {
+  'detective': {
     name: 'Detective',
     portrait: 'detective-portrait.png',
+    element: '',
+    startingRoomNumber: 1,
+    currentRoomNumber: 1,
   },
-];
+};
+
+console.log(characters['detective']);
 
 // Generated Message Objects Data Structure
 
 let generatedMessages = {};
 
+// Global Variable Initializations
+
+let currentMessageId = 0;
+let initialTimerTimeInTenthsOfSeconds = 130;
+let timerTimeInTenthsOfSeconds = initialTimerTimeInTenthsOfSeconds;
+let fugitiveMovementTimeInterval=0;
+let fugitiveMovementTickAccumulator =0;
+let numberOfRooms = 9;
+let gameOver = false;
+let chatModeOpen = false;
+
 // Message Element Class
 
 class Message {
-  constructor(character, text) {
+  constructor(characterObject, text) {
     this.id = currentMessageId;
-    this.character = character;
+    this.characterObject = characterObject;
     this.text = text;
     this.el = document.createElement('div');
     this.create();
@@ -95,55 +110,31 @@ class Message {
       .appendChild(messageNameContainer)
       .classList.add('message-name-container');
 
-    const character = this.character;
-    const characterListing = characters.find(c => c.name === character);
-
-    messagePortraitContainer.style.backgroundImage = `url(${characterListing.portrait})`;
+    messagePortraitContainer.style.backgroundImage = `url(${this.characterObject.portrait})`;
     // console.log(`${characterListing.portrait}`);
 
-    messageNameContainer.textContent = character;
+    messageNameContainer.textContent = this.characterObject.name;
 
     messageTextContainer.textContent = this.text;
 
     generatedMessages[this.id] = this;
     // console.log(generatedMessages);
+
+    messageContainer.scrollTop = messageContainer.scrollHeight;
   }
 }
 
 // Messages Testing
 
-new Message('Fugitive', messages.fugitiveAlmostOut);
-new Message('Detective', 'I will catch you!');
-new Message('Detective', 'This is getting difficult!');
+new Message(characters.fugitive, messages.fugitiveAlmostOut);
+new Message(characters.detective, 'I will catch you!');
+new Message(characters.detective, 'This is getting difficult!');
 
 // Timer Display Logic
 
 function updateTimer() {
 
-// HTML References Method (inferior)
-// 
-//  let secondsOnes = timerSecondsOnes.innerHTML;
-//  let secondsTens = timerSecondsTens.innerHTML;
-//  let minutesOnes = timerMinutesOnes.innerHTML;
-//
-//  if (secondsOnes > 0) {
-//     secondsOnes--;
-//   } else if (secondsOnes === 0) {
-//     if (secondsTens > 0) {
-//       secondsOnes = 9;
-//       secondsTens--;
-//     } else if (secondsTens === 0) {
-//       if (minutesOnes === 0 && secondsTens === 0 && secondsOnes === 0) {
-//         clearInterval(startTimer);
-//       } else {
-//         secondsTens = 5;
-//         secondsOnes = 9;
-//         minutesOnes--;
-//       }
-//     }
-//   }
-
-// Variable Reference Method (better)
+// Variable Reference Method
 
   let secondsOnes = Math.floor((timerTimeInTenthsOfSeconds/10) % 10);
   let secondsTens = Math.floor(((timerTimeInTenthsOfSeconds/10) % 60) / 10);
@@ -159,7 +150,7 @@ function updateTimer() {
 // Initializing functions
 
 function calculateFugitiveMovementTimeInterval() {
-    const currentRoomId = document.querySelector('.contains-fugitive').parentElement.id;
+    const currentRoomId = `room${characters.fugitive.currentRoomNumber}`;
     const currentRoomNumber = parseInt(currentRoomId.replace('room', ''));
 
     const finalRoomNumber = numberOfRooms;
@@ -170,78 +161,193 @@ function calculateFugitiveMovementTimeInterval() {
     return fugitiveMovementTimeInterval;
 }
 
+function generateCharacterElements() {
+
+  const parent = mapContainer;
+
+  Object.values(characters).forEach(character => {
+    
+    const el = document.createElement('div');
+    el.id = character.name.toLowerCase();
+    el.classList.add('room-portrait');
+
+    const room = document.getElementById(`room${character.startingRoomNumber}`);
+
+    const parentRect = parent.getBoundingClientRect();
+    const roomRect = room.getBoundingClientRect();
+
+    const left = (roomRect.x - parentRect.x) + (0.5*roomRect.width);
+    const top  = (roomRect.y  - parentRect.y)  + (0.5*roomRect.height);
+
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+
+    mapContainer.appendChild(el);
+
+    character.element = el;
+  });
+}
+
 // Move a Character Room Portrait
 
-const moveCharacterRoomPortrait = function(character, destinationRoomNumber) {
-    const roomPortraitElement = document.querySelector(`.contains-${character.toLowerCase()}`);
-    // console.log(roomPortraitElement);
-    roomPortraitElement?.parentElement?.removeChild(roomPortraitElement);
-    // console.log(roomPortraitElement);
-    document?.getElementById(`room${destinationRoomNumber}`)?.appendChild(roomPortraitElement);
+const moveCharacterRoomPortrait = function(character=String) {
 
-    if (destinationRoomNumber > numberOfRooms) {
-        roomPortraitElement.parentElement?.removeChild();
-        clearInterval(startTimer);
+  // Translation Method
+
+    const el = document.getElementById(character);
+    const currentRoom = document.getElementById(`room${characters[character].currentRoomNumber}`);
+    const targetRoom = document.getElementById(`room${characters[character].currentRoomNumber + 1}`);
+    
+   
+    const currentRoomLeft = currentRoom?.getBoundingClientRect().left;
+    const currentRoomTop = currentRoom?.getBoundingClientRect().top;
+    const targetRoomLeft = targetRoom?.getBoundingClientRect().left;
+    const targetRoomTop = targetRoom?.getBoundingClientRect().top;
+
+    
+
+    const shiftX = targetRoomLeft - currentRoomLeft;
+    const shiftY = targetRoomTop - currentRoomTop;
+
+    if (character === 'fugitive' && characters[character].currentRoomNumber === 9) {
+      el.style.transform = 'translate(-50%, -150vh)';
+      characters[character].currentRoomNumber++;
+      return
     }
+
+    el.style.left = parseInt(el.style.left) + shiftX + 'px';
+    el.style.top = parseInt(el.style.top) + shiftY + 'px';
+
+    characters[character].currentRoomNumber++;
+
+    const otherCharacter = character === 'detective' ? 'fugitive' : 'detective';
+    
+    const nudgeX = 55;
+
+    if (characters[character].currentRoomNumber === characters[otherCharacter].currentRoomNumber) {
+      el.style.left = (parseInt(el.style.left) - nudgeX) + 'px';
+      characters[otherCharacter].element.style.left = (parseInt(characters[otherCharacter].element.style.left) + nudgeX) + 'px';
+    }
+
+}
+
+function recenterRoomPortraits() {
+  
+  Object.values(characters).forEach ( (character) => {
+  
+
+  const room = document.getElementById(`room${character.currentRoomNumber}`);
+  
+  if (room >= 10) {
+    return
+  }
+  
+  const parent = mapContainer;
+  const portrait = document.getElementById(character.name.toLowerCase());
+
+  const currentPortraitX = portrait.getBoundingClientRect().x;
+  const currentPortraitY = portrait.getBoundingClientRect().y;
+
+  const parentX = parent.getBoundingClientRect().x;
+  const parentY = parent.getBoundingClientRect().y;
+
+  const targetX = room.getBoundingClientRect().x;
+  const targetY = room.getBoundingClientRect().y;
+
+  const offsetX = targetX - currentPortraitX - parentX;
+  const offsetY = targetY - currentPortraitY - parentY;
+
+  const newLeft = parseInt(portrait.left) + offsetX;
+  const newTop = parseInt(portrait.top) + offsetY;
+
+  portrait.style.left = `${newLeft}px`;
+  portrait.style.left = `${newTop}px`;
+});
 }
 
 //  Automatically Update Fugitive Position
 
 const updateFugitivePosition = function() {
     const tickLimit = fugitiveMovementTimeInterval;
-    const currentRoomId = document?.querySelector('.contains-fugitive')?.parentElement.id;
-    const currentRoomNumber = parseInt(currentRoomId?.replace('room', ''));
-    const nextRoomNumber = currentRoomNumber + 1;
-    console.log(currentRoomNumber);
 
     fugitiveMovementTickAccumulator++;
 
+    if (gameOver === true) {
+      return;
+  }
+
     if (fugitiveMovementTickAccumulator >= tickLimit) {
-        moveCharacterRoomPortrait('Fugitive', nextRoomNumber);
-        if (nextRoomNumber === 10) {
+        moveCharacterRoomPortrait('fugitive');
+        console.log(`Fugitive room number: ${characters.fugitive.currentRoomNumber}`);
+        if (characters.fugitive.currentRoomNumber === 10) {
           gameOver = true;
       }
         fugitiveMovementTickAccumulator = 0;
-    }
-
-    if (gameOver === true) {
-        return;
-    }
-
-   
+    }   
 }
 
 // Update Detective Position
 
 const updateDetectivePosition = function() {
-    const currentRoomId = document.querySelector('.contains-detective')?.parentElement.id;
-    const currentRoomNumber = parseInt(currentRoomId?.replace('room', ''));
-    const nextRoomNumber = currentRoomNumber + 1;
+    const nextRoomNumber = characters.detective.currentRoomNumber + 1;
 
     if(gameOver === true) {
-        console.log(gameOver);
+        // console.log(gameOver);
         return;
     }
 
-    moveCharacterRoomPortrait('Detective', nextRoomNumber);
+    moveCharacterRoomPortrait('detective');
+    console.log(`Detective room number: ${characters.detective.currentRoomNumber}`);
 
-    if (nextRoomNumber === 10) {
+    if (characters.detective.currentRoomNumber === 10 || characters.detective.currentRoomNumber === characters.fugitive.currentRoomNumber) {
       gameOver = true;
-      console.log(gameOver);
+      clearInterval(startTimer);
+      new Message(characters.detective, "It's all over!");
+      new Message(characters.fugitive, "Ugh! You're faster than I thought...")
+      // console.log(gameOver);
       return;
   }
 
-  console.log(gameOver);
+  // console.log(gameOver);
+}
+
+function openChatMode() {
+  if (chatModeOpen === true) {
+    return
+  } else {
+      // document.body.appendChild(bottomWrapper);
+      bottomWrapper.classList.remove('hidden');
+      recenterRoomPortraits();
+      chatModeOpen = true;
+  }
+}
+
+function closeChatMode() {
+  if (chatModeOpen === false) {
+    return
+  } else {
+      // document.body.removeChild(bottomWrapper);
+      bottomWrapper.classList.add('hidden');
+      recenterRoomPortraits();
+      chatModeOpen = false;
+  }
 }
 
 // Detective Movement Event Listener (Enter Key Press)
 
-document.addEventListener('keyup', updateDetectivePosition);
+document.addEventListener('keyup', (e) => {
+  if(e.key === 'Enter') {
+    updateDetectivePosition();
+    openChatMode();
+  } else return
+});
 
 // Overall initialization function
 
 function initialize() {
     calculateFugitiveMovementTimeInterval();
+    generateCharacterElements();
+    
 }
 
 // Initialization function call
