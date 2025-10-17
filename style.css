@@ -25,16 +25,18 @@ body {
   background-color: beige;
 }
 
-#top-wrapper {
+.top-wrapper {
   display: flex;
-  height: auto;
-  flex: 1 1 auto;
+  height: 100%;
+  transition: all ease 500ms;
 }
 
-#bottom-wrapper {
+
+.bottom-wrapper {
   display: flex;
   flex-direction: column;
-  height: 20%;
+  height: 0%;
+  transition: all ease 500ms;
 }
 
 #left-parent-container {
@@ -62,10 +64,12 @@ body {
 
 #prompt-container {
   display: flex;
+  height: 50%;
 }
 
 #response-container {
   display: flex;
+  height: 50%
 }
 
 .roomrow {
@@ -88,7 +92,7 @@ body {
   height: 100px;
   /* background-color: white; */
   transform: translate(-50%, -50%);
-  transition: left 300ms ease, top 300ms ease, transform 400ms ease;
+  transition: left 300ms ease-out, top 300ms ease-out, transform 300ms ease;
 }
 
 #detective {
