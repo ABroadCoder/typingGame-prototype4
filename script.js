@@ -204,8 +204,6 @@ const moveCharacterRoomPortrait = function(character=String) {
     const targetRoomLeft = targetRoom?.getBoundingClientRect().left;
     const targetRoomTop = targetRoom?.getBoundingClientRect().top;
 
-    
-
     const shiftX = targetRoomLeft - currentRoomLeft;
     const shiftY = targetRoomTop - currentRoomTop;
 
@@ -220,49 +218,80 @@ const moveCharacterRoomPortrait = function(character=String) {
 
     characters[character].currentRoomNumber++;
 
-    const otherCharacter = character === 'detective' ? 'fugitive' : 'detective';
+    // Multiple portraits in a room => offset x
+    fitMultipleRoomPortraits(character);
+    // const otherCharacter = character === 'detective' ? 'fugitive' : 'detective';
     
-    const nudgeX = 55;
+    // const nudgeX = 55;
 
-    if (characters[character].currentRoomNumber === characters[otherCharacter].currentRoomNumber) {
-      el.style.left = (parseInt(el.style.left) - nudgeX) + 'px';
-      characters[otherCharacter].element.style.left = (parseInt(characters[otherCharacter].element.style.left) + nudgeX) + 'px';
-    }
+    // if (characters[character].currentRoomNumber === characters[otherCharacter].currentRoomNumber) {
+    //   el.style.left = (parseInt(el.style.left) - nudgeX) + 'px';
+    //   characters[otherCharacter].element.style.left = (parseInt(characters[otherCharacter].element.style.left) + nudgeX) + 'px';
+    // }
 
 }
 
+function fitMultipleRoomPortraits(movingCharacter) {
+  
+  const otherCharacter = movingCharacter === 'detective' ? 'fugitive' : 'detective';
+    
+  const nudgeX = 55;
+
+  if (characters[movingCharacter].currentRoomNumber === characters[otherCharacter].currentRoomNumber) {
+    document.getElementById(`${movingCharacter}`).style.left = (parseInt(document.getElementById(`${movingCharacter}`).style.left) - nudgeX) + 'px';
+    characters[otherCharacter].element.style.left = (parseInt(characters[otherCharacter].element.style.left) + nudgeX) + 'px';
+  }
+}
+
 function recenterRoomPortraits() {
+
+  if (characters.fugitive.currentRoomNumber >= 10) {
   
+  const room = document.getElementById(`room${characters.detective.currentRoomNumber}`);
+  const parent = mapContainer;
+  const portrait = document.getElementById(characters.detective.name.toLowerCase());
+
+  const parentLeft = parent.getBoundingClientRect().left;
+  const parentTop = parent.getBoundingClientRect().top;
+
+  const targetLeft = room.getBoundingClientRect().left;
+  const targetTop = room.getBoundingClientRect().top;
+
+  const newLeft = parseInt(targetLeft) - parseInt(parentLeft) + 0.5*room.getBoundingClientRect().width;
+  const newTop = parseInt(targetTop) - parseInt(parentTop) + 0.5*room.getBoundingClientRect().height;
+
+  portrait.style.left = `${newLeft}px`;
+  portrait.style.top = `${newTop}px`;
+
+  console.log('Recentering function has run')
+  } else {
+
   Object.values(characters).forEach ( (character) => {
-  
 
   const room = document.getElementById(`room${character.currentRoomNumber}`);
-  
-  if (room >= 10) {
-    return
-  }
-  
   const parent = mapContainer;
   const portrait = document.getElementById(character.name.toLowerCase());
 
-  const currentPortraitX = portrait.getBoundingClientRect().x;
-  const currentPortraitY = portrait.getBoundingClientRect().y;
+  const parentLeft = parent.getBoundingClientRect().left;
+  const parentTop = parent.getBoundingClientRect().top; 
 
-  const parentX = parent.getBoundingClientRect().x;
-  const parentY = parent.getBoundingClientRect().y;
+  const targetLeft = room.getBoundingClientRect().left;
+  const targetTop = room.getBoundingClientRect().top;
 
-  const targetX = room.getBoundingClientRect().x;
-  const targetY = room.getBoundingClientRect().y;
-
-  const offsetX = targetX - currentPortraitX - parentX;
-  const offsetY = targetY - currentPortraitY - parentY;
-
-  const newLeft = parseInt(portrait.left) + offsetX;
-  const newTop = parseInt(portrait.top) + offsetY;
+  const newLeft = parseInt(targetLeft) - parseInt(parentLeft) + 0.5*room.getBoundingClientRect().width;
+  const newTop = parseInt(targetTop) - parseInt(parentTop) + 0.5*room.getBoundingClientRect().height;
 
   portrait.style.left = `${newLeft}px`;
-  portrait.style.left = `${newTop}px`;
-});
+  portrait.style.top = `${newTop}px`;
+
+  console.log('Recentering function has run')
+  
+    });
+  }
+
+  if (characters.detective.currentRoomNumber === characters.fugitive.currentRoomNumber) {
+    fitMultipleRoomPortraits('detective');
+  }
 }
 
 //  Automatically Update Fugitive Position
@@ -316,29 +345,83 @@ function openChatMode() {
     return
   } else {
       // document.body.appendChild(bottomWrapper);
-      bottomWrapper.classList.remove('hidden');
+      // bottomWrapper.classList.remove('hidden');
+
+      
+    //   const onEnd = function () {
+    //     requestAnimationFrame(() => recenterRoomPortraits());
+    //     bottomWrapper.removeEventListener('transitionend', onEnd);
+    //   }
+      
+    //   bottomWrapper.addEventListener('transitionend', onEnd);
+      
+    let perpetuator;
+
+    const tick = function() {
       recenterRoomPortraits();
-      chatModeOpen = true;
+      perpetuator = requestAnimationFrame(tick);
+    }
+
+    const onEnd = function() {
+      cancelAnimationFrame(perpetuator);
+      recenterRoomPortraits();
+      bottomWrapper.removeEventListener('transitionend', onEnd);
+      return
+    }
+
+    bottomWrapper.addEventListener('transitionend', onEnd);
+    bottomWrapper.style.height = '20%';
+    topWrapper.style.height = '80%';
+    requestAnimationFrame(tick);
+
+    chatModeOpen = true;
+    }
+
+
+      
   }
-}
 
 function closeChatMode() {
   if (chatModeOpen === false) {
     return
   } else {
-      // document.body.removeChild(bottomWrapper);
-      bottomWrapper.classList.add('hidden');
+    
+    let perpetuator;
+
+    const tick = function() {
       recenterRoomPortraits();
+      perpetuator = requestAnimationFrame(tick);
+    }
+
+    const onEnd = function() {
+      cancelAnimationFrame(perpetuator);
+      recenterRoomPortraits();
+      bottomWrapper.removeEventListener('transitionend', onEnd);
+      return
+    }
+
+      bottomWrapper.addEventListener('transitionend', onEnd);
+      bottomWrapper.style.height = '0%';
+      topWrapper.style.height = '100%';
+      requestAnimationFrame(tick);
+      
       chatModeOpen = false;
+      };
+      
+      
   }
-}
 
 // Detective Movement Event Listener (Enter Key Press)
 
 document.addEventListener('keyup', (e) => {
   if(e.key === 'Enter') {
     updateDetectivePosition();
+  } else if (e.key === 'o') {
     openChatMode();
+  } else if (e.key === 'c') {
+    closeChatMode();
+  } else if (e.key === 'r') {
+    recenterRoomPortraits();
   } else return
 });
 
@@ -360,6 +443,3 @@ const startTimer = setInterval(() => {
     updateTimer(); 
     updateFugitivePosition();
 }, 100);
-
-
-
