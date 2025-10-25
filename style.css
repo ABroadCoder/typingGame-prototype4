@@ -1,4 +1,6 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -31,7 +33,6 @@ body {
   transition: all ease 500ms;
 }
 
-
 .bottom-wrapper {
   display: flex;
   flex-direction: column;
@@ -62,14 +63,32 @@ body {
   margin: 5px;
 }
 
-#prompt-container {
+#typing-wrapper {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  transition: left 300ms ease-out, top 300ms ease-out, transform 300ms ease;
+}
+
+#prompt-container-map {
+  display: flex;
+  height: 50%;
+  background-color: pink;
+}
+
+#input-map {
   display: flex;
   height: 50%;
 }
 
-#response-container {
+#prompt-container-chat {
   display: flex;
-  height: 50%
+  height: 50%;
+}
+
+#input-chat {
+  display: flex;
+  height: 50%;
 }
 
 .roomrow {
