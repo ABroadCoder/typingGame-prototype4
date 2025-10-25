@@ -22,6 +22,8 @@ const room9 = document.getElementById('room9');
 const detective = document.getElementById('detective');
 const fugitive = document.getElementById('fugitive');
 
+const typingWrapper = document.getElementById('typing-wrapper');
+
 // Comments Data Structure
 
 const messages = {
@@ -41,23 +43,25 @@ const messages = {
 // Characters Data Structure
 
 const characters = {
-  'fugitive': {
+  fugitive: {
     name: 'Fugitive',
     portrait: 'fugitive-portrait.png',
     element: '',
     startingRoomNumber: 4,
     currentRoomNumber: 4,
+    currentLeft: '0px',
+    currentTop: '0px',
   },
-  'detective': {
+  detective: {
     name: 'Detective',
     portrait: 'detective-portrait.png',
     element: '',
     startingRoomNumber: 1,
     currentRoomNumber: 1,
+    currentLeft: '0px',
+    currentTop: '0px',
   },
 };
-
-console.log(characters['detective']);
 
 // Generated Message Objects Data Structure
 
@@ -68,8 +72,8 @@ let generatedMessages = {};
 let currentMessageId = 0;
 let initialTimerTimeInTenthsOfSeconds = 130;
 let timerTimeInTenthsOfSeconds = initialTimerTimeInTenthsOfSeconds;
-let fugitiveMovementTimeInterval=0;
-let fugitiveMovementTickAccumulator =0;
+let fugitiveMovementTimeInterval = 0;
+let fugitiveMovementTickAccumulator = 0;
 let numberOfRooms = 9;
 let gameOver = false;
 let chatModeOpen = false;
@@ -133,40 +137,41 @@ new Message(characters.detective, 'This is getting difficult!');
 // Timer Display Logic
 
 function updateTimer() {
+  // Variable Reference Method
 
-// Variable Reference Method
-
-  let secondsOnes = Math.floor((timerTimeInTenthsOfSeconds/10) % 10);
-  let secondsTens = Math.floor(((timerTimeInTenthsOfSeconds/10) % 60) / 10);
-  let minutesOnes = Math.floor((timerTimeInTenthsOfSeconds/10)/60);
+  let secondsOnes = Math.floor((timerTimeInTenthsOfSeconds / 10) % 10);
+  let secondsTens = Math.floor(((timerTimeInTenthsOfSeconds / 10) % 60) / 10);
+  let minutesOnes = Math.floor(timerTimeInTenthsOfSeconds / 10 / 60);
 
   timerSecondsOnes.innerHTML = secondsOnes;
   timerSecondsTens.innerHTML = secondsTens;
   timerMinutesOnes.innerHTML = minutesOnes;
 
-    if (timerTimeInTenthsOfSeconds > 0) {timerTimeInTenthsOfSeconds--;} else clearInterval(startTimer);
+  if (timerTimeInTenthsOfSeconds > 0) {
+    timerTimeInTenthsOfSeconds--;
+  } else clearInterval(startTimer);
 }
 
 // Initializing functions
 
 function calculateFugitiveMovementTimeInterval() {
-    const currentRoomId = `room${characters.fugitive.currentRoomNumber}`;
-    const currentRoomNumber = parseInt(currentRoomId.replace('room', ''));
+  const currentRoomId = `room${characters.fugitive.currentRoomNumber}`;
+  const currentRoomNumber = parseInt(currentRoomId.replace('room', ''));
 
-    const finalRoomNumber = numberOfRooms;
+  const finalRoomNumber = numberOfRooms;
 
-    const movesToExit = finalRoomNumber - currentRoomNumber + 1;
+  const movesToExit = finalRoomNumber - currentRoomNumber + 1;
 
-    fugitiveMovementTimeInterval = Math.floor(initialTimerTimeInTenthsOfSeconds/movesToExit);
-    return fugitiveMovementTimeInterval;
+  fugitiveMovementTimeInterval = Math.floor(
+    initialTimerTimeInTenthsOfSeconds / movesToExit
+  );
+  return fugitiveMovementTimeInterval;
 }
 
 function generateCharacterElements() {
-
   const parent = mapContainer;
 
   Object.values(characters).forEach(character => {
-    
     const el = document.createElement('div');
     el.id = character.name.toLowerCase();
     el.classList.add('room-portrait');
@@ -176,11 +181,11 @@ function generateCharacterElements() {
     const parentRect = parent.getBoundingClientRect();
     const roomRect = room.getBoundingClientRect();
 
-    const left = (roomRect.x - parentRect.x) + (0.5*roomRect.width);
-    const top  = (roomRect.y  - parentRect.y)  + (0.5*roomRect.height);
+    const left = roomRect.x - parentRect.x + 0.5 * roomRect.width;
+    const top = roomRect.y - parentRect.y + 0.5 * roomRect.height;
 
-    el.style.left = `${left}px`;
-    el.style.top = `${top}px`;
+    character.currentLeft = el.style.left = `${left}px`;
+    character.currentTop = el.style.top = `${top}px`;
 
     mapContainer.appendChild(el);
 
@@ -190,184 +195,240 @@ function generateCharacterElements() {
 
 // Move a Character Room Portrait
 
-const moveCharacterRoomPortrait = function(character=String) {
-
+const moveCharacterRoomPortrait = function (character = String) {
   // Translation Method
 
-    const el = document.getElementById(character);
-    const currentRoom = document.getElementById(`room${characters[character].currentRoomNumber}`);
-    const targetRoom = document.getElementById(`room${characters[character].currentRoomNumber + 1}`);
-    
-   
-    const currentRoomLeft = currentRoom?.getBoundingClientRect().left;
-    const currentRoomTop = currentRoom?.getBoundingClientRect().top;
-    const targetRoomLeft = targetRoom?.getBoundingClientRect().left;
-    const targetRoomTop = targetRoom?.getBoundingClientRect().top;
+  const el = document.getElementById(character);
+  const currentRoom = document.getElementById(
+    `room${characters[character].currentRoomNumber}`
+  );
+  const targetRoom = document.getElementById(
+    `room${characters[character].currentRoomNumber + 1}`
+  );
 
-    const shiftX = targetRoomLeft - currentRoomLeft;
-    const shiftY = targetRoomTop - currentRoomTop;
+  const currentRoomLeft = currentRoom?.getBoundingClientRect().left;
+  const currentRoomTop = currentRoom?.getBoundingClientRect().top;
+  const targetRoomLeft = targetRoom?.getBoundingClientRect().left;
+  const targetRoomTop = targetRoom?.getBoundingClientRect().top;
 
-    if (character === 'fugitive' && characters[character].currentRoomNumber === 9) {
-      el.style.transform = 'translate(-50%, -150vh)';
-      characters[character].currentRoomNumber++;
-      return
-    }
+  const shiftX = targetRoomLeft - currentRoomLeft;
+  const shiftY = targetRoomTop - currentRoomTop;
 
-    el.style.left = parseInt(el.style.left) + shiftX + 'px';
-    el.style.top = parseInt(el.style.top) + shiftY + 'px';
-
+  if (
+    character === 'fugitive' &&
+    characters[character].currentRoomNumber === 9
+  ) {
+    el.style.transform = 'translate(-50%, -150vh)';
     characters[character].currentRoomNumber++;
+    return;
+  }
 
-    // Multiple portraits in a room => offset x
-    fitMultipleRoomPortraits(character);
-    // const otherCharacter = character === 'detective' ? 'fugitive' : 'detective';
-    
-    // const nudgeX = 55;
+  // Update left and top values in characters object
+  characters[character].currentLeft = el.style.left =
+    parseInt(el.style.left) + shiftX + 'px';
+  characters[character].currentTop = el.style.top =
+    parseInt(el.style.top) + shiftY + 'px';
 
-    // if (characters[character].currentRoomNumber === characters[otherCharacter].currentRoomNumber) {
-    //   el.style.left = (parseInt(el.style.left) - nudgeX) + 'px';
-    //   characters[otherCharacter].element.style.left = (parseInt(characters[otherCharacter].element.style.left) + nudgeX) + 'px';
-    // }
+  characters[character].currentRoomNumber++;
 
-}
+  // Multiple portraits in a room => offset x
+  fitMultipleRoomPortraits(character);
+};
 
 function fitMultipleRoomPortraits(movingCharacter) {
-  
-  const otherCharacter = movingCharacter === 'detective' ? 'fugitive' : 'detective';
-    
+  const otherCharacter =
+    movingCharacter === 'detective' ? 'fugitive' : 'detective';
+
   const nudgeX = 55;
 
-  if (characters[movingCharacter].currentRoomNumber === characters[otherCharacter].currentRoomNumber) {
-    document.getElementById(`${movingCharacter}`).style.left = (parseInt(document.getElementById(`${movingCharacter}`).style.left) - nudgeX) + 'px';
-    characters[otherCharacter].element.style.left = (parseInt(characters[otherCharacter].element.style.left) + nudgeX) + 'px';
+  if (
+    characters[movingCharacter].currentRoomNumber ===
+    characters[otherCharacter].currentRoomNumber
+  ) {
+    document.getElementById(`${movingCharacter}`).style.left =
+      parseInt(document.getElementById(`${movingCharacter}`).style.left) -
+      nudgeX +
+      'px';
+    characters[otherCharacter].element.style.left =
+      parseInt(characters[otherCharacter].element.style.left) + nudgeX + 'px';
   }
 }
 
 function recenterRoomPortraits() {
-
   if (characters.fugitive.currentRoomNumber >= 10) {
-  
-  const room = document.getElementById(`room${characters.detective.currentRoomNumber}`);
-  const parent = mapContainer;
-  const portrait = document.getElementById(characters.detective.name.toLowerCase());
+    const room = document.getElementById(
+      `room${characters.detective.currentRoomNumber}`
+    );
+    const parent = mapContainer;
+    const portrait = document.getElementById(
+      characters.detective.name.toLowerCase()
+    );
 
-  const parentLeft = parent.getBoundingClientRect().left;
-  const parentTop = parent.getBoundingClientRect().top;
+    const parentLeft = parent.getBoundingClientRect().left;
+    const parentTop = parent.getBoundingClientRect().top;
 
-  const targetLeft = room.getBoundingClientRect().left;
-  const targetTop = room.getBoundingClientRect().top;
+    const targetLeft = room.getBoundingClientRect().left;
+    const targetTop = room.getBoundingClientRect().top;
 
-  const newLeft = parseInt(targetLeft) - parseInt(parentLeft) + 0.5*room.getBoundingClientRect().width;
-  const newTop = parseInt(targetTop) - parseInt(parentTop) + 0.5*room.getBoundingClientRect().height;
+    const newLeft =
+      parseInt(targetLeft) -
+      parseInt(parentLeft) +
+      0.5 * room.getBoundingClientRect().width;
+    const newTop =
+      parseInt(targetTop) -
+      parseInt(parentTop) +
+      0.5 * room.getBoundingClientRect().height;
 
-  portrait.style.left = `${newLeft}px`;
-  portrait.style.top = `${newTop}px`;
+    portrait.style.left = `${newLeft}px`;
+    portrait.style.top = `${newTop}px`;
 
-  console.log('Recentering function has run')
+    console.log('Recentering function has run');
   } else {
+    Object.values(characters).forEach(character => {
+      const room = document.getElementById(
+        `room${character.currentRoomNumber}`
+      );
+      const parent = mapContainer;
+      const portrait = document.getElementById(character.name.toLowerCase());
 
-  Object.values(characters).forEach ( (character) => {
+      const parentLeft = parent.getBoundingClientRect().left;
+      const parentTop = parent.getBoundingClientRect().top;
 
-  const room = document.getElementById(`room${character.currentRoomNumber}`);
-  const parent = mapContainer;
-  const portrait = document.getElementById(character.name.toLowerCase());
+      const targetLeft = room.getBoundingClientRect().left;
+      const targetTop = room.getBoundingClientRect().top;
 
-  const parentLeft = parent.getBoundingClientRect().left;
-  const parentTop = parent.getBoundingClientRect().top; 
+      const newLeft =
+        parseInt(targetLeft) -
+        parseInt(parentLeft) +
+        0.5 * room.getBoundingClientRect().width;
+      const newTop =
+        parseInt(targetTop) -
+        parseInt(parentTop) +
+        0.5 * room.getBoundingClientRect().height;
 
-  const targetLeft = room.getBoundingClientRect().left;
-  const targetTop = room.getBoundingClientRect().top;
+      portrait.style.left = `${newLeft}px`;
+      portrait.style.top = `${newTop}px`;
 
-  const newLeft = parseInt(targetLeft) - parseInt(parentLeft) + 0.5*room.getBoundingClientRect().width;
-  const newTop = parseInt(targetTop) - parseInt(parentTop) + 0.5*room.getBoundingClientRect().height;
-
-  portrait.style.left = `${newLeft}px`;
-  portrait.style.top = `${newTop}px`;
-
-  console.log('Recentering function has run')
-  
+      console.log('Recentering function has run');
     });
   }
 
-  if (characters.detective.currentRoomNumber === characters.fugitive.currentRoomNumber) {
+  if (
+    characters.detective.currentRoomNumber ===
+    characters.fugitive.currentRoomNumber
+  ) {
     fitMultipleRoomPortraits('detective');
   }
 }
 
 //  Automatically Update Fugitive Position
 
-const updateFugitivePosition = function() {
-    const tickLimit = fugitiveMovementTimeInterval;
+const updateFugitivePosition = function () {
+  const tickLimit = fugitiveMovementTimeInterval;
 
-    fugitiveMovementTickAccumulator++;
+  fugitiveMovementTickAccumulator++;
 
-    if (gameOver === true) {
-      return;
+  if (gameOver === true) {
+    return;
   }
 
-    if (fugitiveMovementTickAccumulator >= tickLimit) {
-        moveCharacterRoomPortrait('fugitive');
-        console.log(`Fugitive room number: ${characters.fugitive.currentRoomNumber}`);
-        if (characters.fugitive.currentRoomNumber === 10) {
-          gameOver = true;
-      }
-        fugitiveMovementTickAccumulator = 0;
-    }   
+  if (fugitiveMovementTickAccumulator >= tickLimit) {
+    moveCharacterRoomPortrait('fugitive');
+    console.log(
+      `Fugitive room number: ${characters.fugitive.currentRoomNumber}`
+    );
+    if (characters.fugitive.currentRoomNumber === 10) {
+      gameOver = true;
+    }
+    fugitiveMovementTickAccumulator = 0;
+  }
+};
+
+// Update Position of Typing Wrapper
+
+function updateTypingWrapperPosition() {
+  // const mapRect = mapContainer.getBoundingClientRect();
+  // const mapLeft = mapRect.left;
+  // const mapTop = mapRect.top;
+
+  // Reference current dimensions and coordinates of detective element
+  console.log(`${characters.detective.element}`);
+  const detectiveRect = characters.detective.element.getBoundingClientRect();
+  const detectiveLeft = characters.detective.currentLeft;
+  const detectiveTop = characters.detective.currentTop;
+
+  // Reference dimensions of typing wrapper element
+  const typingRect = typingWrapper.getBoundingClientRect();
+
+  // Calculate new coordinates of typing wrapper, centered below detective
+  const typingLeft = parseInt(detectiveLeft) - 0.5 * typingRect.width + 'px';
+
+  const typingTop = parseInt(detectiveTop) + 0.5 * detectiveRect.height + 'px';
+
+  // Set new coordinates of typing wrapper
+  typingWrapper.style.left = typingLeft;
+  typingWrapper.style.top = typingTop;
 }
 
 // Update Detective Position
 
-const updateDetectivePosition = function() {
-    const nextRoomNumber = characters.detective.currentRoomNumber + 1;
+const updateDetectivePosition = function () {
+  const nextRoomNumber = characters.detective.currentRoomNumber + 1;
 
-    if(gameOver === true) {
-        // console.log(gameOver);
-        return;
-    }
+  if (gameOver === true) {
+    // console.log(gameOver);
+    return;
+  }
 
-    moveCharacterRoomPortrait('detective');
-    console.log(`Detective room number: ${characters.detective.currentRoomNumber}`);
+  moveCharacterRoomPortrait('detective');
+  // console.log(
+  //   `Detective room number: ${characters.detective.currentRoomNumber}`
+  // );
+  updateTypingWrapperPosition();
 
-    if (characters.detective.currentRoomNumber === 10 || characters.detective.currentRoomNumber === characters.fugitive.currentRoomNumber) {
-      gameOver = true;
-      clearInterval(startTimer);
-      new Message(characters.detective, "It's all over!");
-      new Message(characters.fugitive, "Ugh! You're faster than I thought...")
-      // console.log(gameOver);
-      return;
+  if (
+    characters.detective.currentRoomNumber === 10 ||
+    characters.detective.currentRoomNumber ===
+      characters.fugitive.currentRoomNumber
+  ) {
+    gameOver = true;
+    clearInterval(startTimer);
+    new Message(characters.detective, "It's all over!");
+    new Message(characters.fugitive, "Ugh! You're faster than I thought...");
+    // console.log(gameOver);
+    return;
   }
 
   // console.log(gameOver);
-}
+};
 
 function openChatMode() {
   if (chatModeOpen === true) {
-    return
+    return;
   } else {
-      // document.body.appendChild(bottomWrapper);
-      // bottomWrapper.classList.remove('hidden');
+    // document.body.appendChild(bottomWrapper);
+    // bottomWrapper.classList.remove('hidden');
 
-      
     //   const onEnd = function () {
     //     requestAnimationFrame(() => recenterRoomPortraits());
     //     bottomWrapper.removeEventListener('transitionend', onEnd);
     //   }
-      
+
     //   bottomWrapper.addEventListener('transitionend', onEnd);
-      
+
     let perpetuator;
 
-    const tick = function() {
+    const tick = function () {
       recenterRoomPortraits();
       perpetuator = requestAnimationFrame(tick);
-    }
+    };
 
-    const onEnd = function() {
+    const onEnd = function () {
       cancelAnimationFrame(perpetuator);
       recenterRoomPortraits();
       bottomWrapper.removeEventListener('transitionend', onEnd);
-      return
-    }
+      return;
+    };
 
     bottomWrapper.addEventListener('transitionend', onEnd);
     bottomWrapper.style.height = '20%';
@@ -375,46 +436,40 @@ function openChatMode() {
     requestAnimationFrame(tick);
 
     chatModeOpen = true;
-    }
-
-
-      
   }
+}
 
 function closeChatMode() {
   if (chatModeOpen === false) {
-    return
+    return;
   } else {
-    
     let perpetuator;
 
-    const tick = function() {
+    const tick = function () {
       recenterRoomPortraits();
       perpetuator = requestAnimationFrame(tick);
-    }
+    };
 
-    const onEnd = function() {
+    const onEnd = function () {
       cancelAnimationFrame(perpetuator);
       recenterRoomPortraits();
       bottomWrapper.removeEventListener('transitionend', onEnd);
-      return
-    }
+      return;
+    };
 
-      bottomWrapper.addEventListener('transitionend', onEnd);
-      bottomWrapper.style.height = '0%';
-      topWrapper.style.height = '100%';
-      requestAnimationFrame(tick);
-      
-      chatModeOpen = false;
-      };
-      
-      
+    bottomWrapper.addEventListener('transitionend', onEnd);
+    bottomWrapper.style.height = '0%';
+    topWrapper.style.height = '100%';
+    requestAnimationFrame(tick);
+
+    chatModeOpen = false;
   }
+}
 
 // Detective Movement Event Listener (Enter Key Press)
 
-document.addEventListener('keyup', (e) => {
-  if(e.key === 'Enter') {
+document.addEventListener('keyup', e => {
+  if (e.key === 'Enter') {
     updateDetectivePosition();
   } else if (e.key === 'o') {
     openChatMode();
@@ -422,15 +477,15 @@ document.addEventListener('keyup', (e) => {
     closeChatMode();
   } else if (e.key === 'r') {
     recenterRoomPortraits();
-  } else return
+  } else return;
 });
 
 // Overall initialization function
 
 function initialize() {
-    calculateFugitiveMovementTimeInterval();
-    generateCharacterElements();
-    
+  calculateFugitiveMovementTimeInterval();
+  generateCharacterElements();
+  updateTypingWrapperPosition();
 }
 
 // Initialization function call
@@ -440,6 +495,6 @@ initialize();
 // Timer Start
 
 const startTimer = setInterval(() => {
-    updateTimer(); 
-    updateFugitivePosition();
+  updateTimer();
+  updateFugitivePosition();
 }, 100);
