@@ -23,6 +23,21 @@ const detective = document.getElementById('detective');
 const fugitive = document.getElementById('fugitive');
 
 const typingWrapper = document.getElementById('typing-wrapper');
+const mapPromptContainer = document.getElementById('prompt-container-map');
+const mapInputContainer = document.getElementById('input-container-map');
+
+// Global Variable Initializations
+
+let currentMessageId = 0;
+let initialTimerTimeInTenthsOfSeconds = 130;
+let timerTimeInTenthsOfSeconds = initialTimerTimeInTenthsOfSeconds;
+let fugitiveMovementTimeInterval = 0;
+let fugitiveMovementTickAccumulator = 0;
+let numberOfRooms = 9;
+let gameOver = false;
+let chatModeOpen = false;
+let currentMapPromptIndex = 0;
+let currentMapTypingIndex = 0;
 
 // Comments Data Structure
 
@@ -39,6 +54,16 @@ const messages = {
     "We'll see about that.",
   ],
 };
+
+// Prompts Data Structure
+
+const prompts = [
+  'Need to go fast',
+  'Speed is the key',
+  'I want to catch up',
+  'The fugitive is escaping',
+  'I can do this',
+];
 
 // Characters Data Structure
 
@@ -66,17 +91,6 @@ const characters = {
 // Generated Message Objects Data Structure
 
 let generatedMessages = {};
-
-// Global Variable Initializations
-
-let currentMessageId = 0;
-let initialTimerTimeInTenthsOfSeconds = 130;
-let timerTimeInTenthsOfSeconds = initialTimerTimeInTenthsOfSeconds;
-let fugitiveMovementTimeInterval = 0;
-let fugitiveMovementTickAccumulator = 0;
-let numberOfRooms = 9;
-let gameOver = false;
-let chatModeOpen = false;
 
 // Message Element Class
 
@@ -128,6 +142,51 @@ class Message {
   }
 }
 
+// Boxed Word Class
+
+class BoxedWord {
+  constructor(text) {
+    this.text = text;
+    this.create();
+  }
+
+  create() {
+    // Clear previous contents
+    mapPromptContainer.innerHTML = '';
+    mapInputContainer.innerHTML = '';
+
+    // Advance prompt index to display next prompt next time
+    currentMapPromptIndex++;
+
+    // Parse prompt into individual characters
+    let promptArray = [...this.text];
+
+    // Create letter boxes for the prompt text (see CSS for styling)
+    promptArray.forEach((item, index) => {
+      const el = document.createElement('span');
+      mapPromptContainer.appendChild(el);
+      el.classList.add('prompt-letter-box');
+      el.id = `prompt-letter-box-${index}`;
+      el.textContent = item;
+      if (item === ' ') {
+        el.style.width = '10px';
+      }
+    });
+
+    // Create letter boxes for the input text (see CSS for styling)
+    promptArray.forEach((item, index) => {
+      const el = document.createElement('span');
+      mapInputContainer.appendChild(el);
+      el.classList.add('input-letter-box');
+      el.id = `input-letter-box-${index}`;
+      el.textContent = ' ';
+      el.style.width = document
+        .getElementById(`prompt-letter-box-${index}`)
+        .getBoundingClientRect().width;
+    });
+  }
+}
+
 // Messages Testing
 
 new Message(characters.fugitive, messages.fugitiveAlmostOut);
@@ -166,6 +225,21 @@ function calculateFugitiveMovementTimeInterval() {
     initialTimerTimeInTenthsOfSeconds / movesToExit
   );
   return fugitiveMovementTimeInterval;
+}
+
+function randomizeMapTypingPrompts() {
+  for (i = 0; i < prompts.length; i++) {
+    // Generate a random index for swapping values
+    let randomIndex = Math.floor(Math.random() * prompts.length);
+    // Swap the current index's value with that of the random index
+    prompts[i] = prompts[randomIndex];
+  }
+}
+
+function generateTypingWord() {
+  if (prompts[currentMapPromptIndex]) {
+    new BoxedWord(prompts[currentMapPromptIndex]);
+  } else return;
 }
 
 function generateCharacterElements() {
@@ -466,17 +540,20 @@ function closeChatMode() {
   }
 }
 
+// Prompt-response Agreement Check (Red-letter Functionality)
+function checkLetter() {}
+
 // Detective Movement Event Listener (Enter Key Press)
 
 document.addEventListener('keyup', e => {
   if (e.key === 'Enter') {
     updateDetectivePosition();
-  } else if (e.key === 'o') {
-    openChatMode();
-  } else if (e.key === 'c') {
-    closeChatMode();
-  } else if (e.key === 'r') {
-    recenterRoomPortraits();
+    // } else if (e.key === 'o') {
+    //   openChatMode();
+    // } else if (e.key === 'c') {
+    //   closeChatMode();
+    // } else if (e.key === 'r') {
+    //   recenterRoomPortraits();
   } else return;
 });
 
@@ -485,6 +562,8 @@ document.addEventListener('keyup', e => {
 function initialize() {
   calculateFugitiveMovementTimeInterval();
   generateCharacterElements();
+  randomizeMapTypingPrompts();
+  generateTypingWord();
   updateTypingWrapperPosition();
 }
 
