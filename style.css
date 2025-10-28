@@ -72,13 +72,30 @@ body {
 
 #prompt-container-map {
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
   height: 50%;
   background-color: pink;
 }
 
-#input-map {
+#input-container-map {
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
   height: 50%;
+  background-color: yellow;
+  color: grey;
+}
+
+.prompt-letter-box {
+  display: block;
+  font-size: 30px;
+}
+
+.input-letter-box {
+  display: block;
+  font-size: 30px;
+  background-color: brown;
 }
 
 #prompt-container-chat {
@@ -86,7 +103,7 @@ body {
   height: 50%;
 }
 
-#input-chat {
+#input-container-chat {
   display: flex;
   height: 50%;
 }
