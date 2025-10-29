@@ -39,6 +39,16 @@ let chatModeOpen = false;
 let currentMapPromptIndex = 0;
 let currentMapTypingIndex = 0;
 
+// Allowed Keys Data Structure (Built Here in Steps)
+
+const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+// Add uppercase letters
+const upperCaseLetters = lowerCaseLetters.map((el) => el.toUpperCase());
+const allLetters = [...lowerCaseLetters, ...upperCaseLetters];
+allLetters.unshift('space');
+const allowedKeys = allLetters;
+console.log(allowedKeys);
+
 // Comments Data Structure
 
 const messages = {
@@ -163,26 +173,44 @@ class BoxedWord {
 
     // Create letter boxes for the prompt text (see CSS for styling)
     promptArray.forEach((item, index) => {
-      const el = document.createElement('span');
+      const el = document.createElement('div');
       mapPromptContainer.appendChild(el);
       el.classList.add('prompt-letter-box');
       el.id = `prompt-letter-box-${index}`;
       el.textContent = item;
+
+      // Prevent collapse of boxes containing only a space
       if (item === ' ') {
-        el.style.width = '10px';
+        el.classList.add('spacer');
+        el.style.height = mapPromptContainer.getBoundingClientRect().height + 'px';
       }
     });
 
     // Create letter boxes for the input text (see CSS for styling)
     promptArray.forEach((item, index) => {
-      const el = document.createElement('span');
+      const el = document.createElement('div');
       mapInputContainer.appendChild(el);
       el.classList.add('input-letter-box');
       el.id = `input-letter-box-${index}`;
-      el.textContent = ' ';
-      el.style.width = document
+      
+      el.style.height = document
         .getElementById(`prompt-letter-box-${index}`)
-        .getBoundingClientRect().width;
+        .getBoundingClientRect().height + 'px';
+      console.log(`Div height value is ${el.style.height}`);
+
+      // Prevent collapse of boxes containing only a space
+      if (item === ' ') {
+        el.classList.add('spacer');
+        return;
+      }
+
+     else {
+      el.style.width = document
+      .getElementById(`prompt-letter-box-${index}`)
+      .getBoundingClientRect().width + 'px';
+    console.log(`Div width value is ${el.style.width}`);
+     }
+
     });
   }
 }
@@ -543,9 +571,33 @@ function closeChatMode() {
 // Prompt-response Agreement Check (Red-letter Functionality)
 function checkLetter() {}
 
-// Detective Movement Event Listener (Enter Key Press)
+// Typing Keys Event Listener
 
 document.addEventListener('keyup', e => {
+  // Define current typing letter box
+ const lb = document.getElementById(`input-letter-box-${currentMapTypingIndex}`);
+  
+  // Listen for letters and spaces
+  if (allowedKeys.includes(e.key)) {
+
+    // Increment current typing index
+    if(currentMapTypingIndex < prompts[currentMapPromptIndex].length) {
+      currentMapTypingIndex++;
+    }
+
+    // Exit if last letter box is already full
+    else return;
+
+    // Set text content to key value
+    if (e.key === 'space') {
+      return;
+    }
+    else lb.textContent = e.key;
+
+    // Exit function
+    return;
+  }
+  
   if (e.key === 'Enter') {
     updateDetectivePosition();
     // } else if (e.key === 'o') {
