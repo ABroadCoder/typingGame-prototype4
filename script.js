@@ -28,7 +28,6 @@ const mapInputContainer = document.getElementById('input-container-map');
 
 // Global Variable Initializations
 
-let currentMessageId = 0;
 let initialTimerTimeInTenthsOfSeconds = 130;
 let timerTimeInTenthsOfSeconds = initialTimerTimeInTenthsOfSeconds;
 let fugitiveMovementTimeInterval = 0;
@@ -36,16 +35,17 @@ let fugitiveMovementTickAccumulator = 0;
 let numberOfRooms = 9;
 let gameOver = false;
 let chatModeOpen = false;
-let currentMapPromptIndex = 0;
-let currentMapTypingIndex = 0;
+let currentMessageId = -1;
+let currentMapPromptIndex = -1;
+let currentMapTypingIndex = -1;
 
 // Allowed Keys Data Structure (Built Here in Steps)
 
 const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
 // Add uppercase letters
-const upperCaseLetters = lowerCaseLetters.map((el) => el.toUpperCase());
+const upperCaseLetters = lowerCaseLetters.map(el => el.toUpperCase());
 const allLetters = [...lowerCaseLetters, ...upperCaseLetters];
-allLetters.unshift('space');
+allLetters.unshift(' ');
 const allowedKeys = allLetters;
 console.log(allowedKeys);
 
@@ -154,22 +154,25 @@ class Message {
 
 // Boxed Word Class
 
-class BoxedWord {
-  constructor(text) {
-    this.text = text;
+class BoxedPrompt {
+  constructor() {
     this.create();
   }
 
   create() {
+    // Advance prompt index to be current
+    currentMapPromptIndex++;
+
+    // Set this.text value
+    this.text = prompts[currentMapPromptIndex];
+
     // Clear previous contents
     mapPromptContainer.innerHTML = '';
     mapInputContainer.innerHTML = '';
 
-    // Advance prompt index to display next prompt next time
-    currentMapPromptIndex++;
-
     // Parse prompt into individual characters
     let promptArray = [...this.text];
+    console.log(promptArray);
 
     // Create letter boxes for the prompt text (see CSS for styling)
     promptArray.forEach((item, index) => {
@@ -182,7 +185,8 @@ class BoxedWord {
       // Prevent collapse of boxes containing only a space
       if (item === ' ') {
         el.classList.add('spacer');
-        el.style.height = mapPromptContainer.getBoundingClientRect().height + 'px';
+        el.style.height =
+          mapPromptContainer.getBoundingClientRect().height + 'px';
       }
     });
 
@@ -192,26 +196,21 @@ class BoxedWord {
       mapInputContainer.appendChild(el);
       el.classList.add('input-letter-box');
       el.id = `input-letter-box-${index}`;
-      
-      el.style.height = document
-        .getElementById(`prompt-letter-box-${index}`)
-        .getBoundingClientRect().height + 'px';
-      console.log(`Div height value is ${el.style.height}`);
 
-      // Prevent collapse of boxes containing only a space
-      if (item === ' ') {
-        el.classList.add('spacer');
-        return;
-      }
+      // Set starting dimensions of input letter boxes (may interrupt dynamic resizing...use pseudoelement for cursor in CSS instead)
 
-     else {
-      el.style.width = document
-      .getElementById(`prompt-letter-box-${index}`)
-      .getBoundingClientRect().width + 'px';
-    console.log(`Div width value is ${el.style.width}`);
-     }
-
+      // el.style.width =
+      //   document
+      //     .getElementById(`prompt-letter-box-${index}`)
+      //     .getBoundingClientRect().width + 'px';
+      // el.style.height =
+      //   document
+      //     .getElementById(`prompt-letter-box-${index}`)
+      //     .getBoundingClientRect().height + 'px';
     });
+
+    // Add cursor effect to first input letter box
+    document.getElementById('input-letter-box-0').classList.add('has-cursor');
   }
 }
 
@@ -264,10 +263,8 @@ function randomizeMapTypingPrompts() {
   }
 }
 
-function generateTypingWord() {
-  if (prompts[currentMapPromptIndex]) {
-    new BoxedWord(prompts[currentMapPromptIndex]);
-  } else return;
+function generateTypingPrompt() {
+  new BoxedPrompt(prompts[currentMapPromptIndex]);
 }
 
 function generateCharacterElements() {
@@ -569,44 +566,99 @@ function closeChatMode() {
 }
 
 // Prompt-response Agreement Check (Red-letter Functionality)
-function checkLetter() {}
+function checkLetter() {
+  const pb = document.getElementById(
+    `prompt-letter-box-${currentMapTypingIndex}`
+  );
+  const ib = document.getElementById(
+    `input-letter-box-${currentMapTypingIndex}`
+  );
+
+  if (ib.textContent !== pb.textContent) {
+    if (ib.textContent === ' ') {
+      ib.classList.add('incorrect-space');
+    } else {
+      ib.classList.add('incorrect-letter');
+    }
+  } else {
+    ib.classList.remove('incorrect-letter', 'incorrect-space');
+  }
+}
 
 // Typing Keys Event Listener
 
 document.addEventListener('keyup', e => {
-  // Define current typing letter box
- const lb = document.getElementById(`input-letter-box-${currentMapTypingIndex}`);
-  
-  // Listen for letters and spaces
-  if (allowedKeys.includes(e.key)) {
+  console.log(`Key pressed: ${e.key}`);
 
-    // Increment current typing index
-    if(currentMapTypingIndex < prompts[currentMapPromptIndex].length) {
-      currentMapTypingIndex++;
-    }
-
-    // Exit if last letter box is already full
-    else return;
-
-    // Set text content to key value
-    if (e.key === 'space') {
-      return;
-    }
-    else lb.textContent = e.key;
-
-    // Exit function
-    return;
-  }
-  
+  // Listen for Enter key
   if (e.key === 'Enter') {
     updateDetectivePosition();
+    return;
     // } else if (e.key === 'o') {
     //   openChatMode();
     // } else if (e.key === 'c') {
     //   closeChatMode();
     // } else if (e.key === 'r') {
     //   recenterRoomPortraits();
-  } else return;
+  }
+
+  // Listen for letters and spaces
+  if (allowedKeys.includes(e.key)) {
+    console.log(`Allowed key pressed: ${e.key}`);
+    // Increment typing index to be current
+    if (currentMapTypingIndex < prompts[currentMapPromptIndex].length - 1) {
+      currentMapTypingIndex++;
+    }
+
+    // Exit if last letter box is already full
+    else {
+      return;
+    }
+
+    // Define current letter boxes
+    const ilb = document.getElementById(
+      `input-letter-box-${currentMapTypingIndex}`
+    );
+    const plb = document.getElementById(
+      `prompt-letter-box-${currentMapTypingIndex}`
+    );
+
+    // Set text content to key value
+    if (e.key === ' ') {
+      ilb.textContent = ' ';
+      // Prevent collapse of letter boxes containing only a space
+      ilb.classList.add('spacer');
+    } else {
+      ilb.textContent = e.key;
+    }
+
+    // Check typed character against prompt and mark red if incorrect
+    checkLetter();
+
+    // Advance cursor
+    ilb.classList.remove('has-cursor');
+
+    if (
+      document.getElementById(`input-letter-box-${currentMapTypingIndex + 1}`)
+    ) {
+      document
+        .getElementById(`input-letter-box-${currentMapTypingIndex + 1}`)
+        .classList.add('has-cursor');
+    }
+
+    // Widen input letter box to match prompt letter box width, if applicable
+    if (ilb.getBoundingClientRect().width < plb.getBoundingClientRect().width) {
+      ilb.style.width = plb.getBoundingClientRect().width + 'px';
+    }
+
+    // Widen prompt letter box to match input letter box width, if applicable
+    if (plb.getBoundingClientRect().width < ilb.getBoundingClientRect().width) {
+      plb.style.width = ilb.getBoundingClientRect().width + 'px';
+    }
+
+    // Exit function
+    return;
+  }
 });
 
 // Overall initialization function
@@ -615,7 +667,7 @@ function initialize() {
   calculateFugitiveMovementTimeInterval();
   generateCharacterElements();
   randomizeMapTypingPrompts();
-  generateTypingWord();
+  generateTypingPrompt();
   updateTypingWrapperPosition();
 }
 
