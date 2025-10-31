@@ -6,7 +6,7 @@
 
 :root {
   --wall-color: grey;
-  --room-color: darkblue;
+  --room-color: rgb(6, 5, 5);
   --room-border-color: slategrey;
 }
 
@@ -67,6 +67,7 @@ body {
   position: absolute;
   display: flex;
   flex-direction: column;
+  width: max-content;
   transition: left 300ms ease-out, top 300ms ease-out, transform 300ms ease;
 }
 
@@ -74,6 +75,7 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  width: 100%;
   height: 50%;
   background-color: pink;
 }
@@ -82,6 +84,7 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  width: 100%;
   height: 50%;
   background-color: rgb(217, 143, 68);
   color: black;
@@ -89,13 +92,16 @@ body {
 
 .prompt-letter-box {
   display: flex;
+  flex: 0 0 auto;
   justify-content: center;
   align-items: baseline;
   font-size: 30px;
 }
 
 .input-letter-box {
+  position: relative;
   display: flex;
+  flex: 0 0 auto;
   justify-content: center;
   align-items: baseline;
   height: 100%;
@@ -103,12 +109,12 @@ body {
   /* background-color: brown; */
 }
 
-#prompt-container-chat {
+.prompt-container-chat {
   display: flex;
   height: 50%;
 }
 
-#input-container-chat {
+.input-container-chat {
   display: flex;
   height: 50%;
 }
@@ -129,6 +135,19 @@ body {
 .has-cursor {
   background-color: yellow;
 }
+
+/* .input-letter-box.has-cursor::after {
+  content: ' ';
+  position: relative;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 1ch;
+  background: rgba(255, 235, 59, 0.7); 
+  pointer-events: none;
+  border-radius: 2px;
+  animation: cursor-blink 1s step-end infinite;
+ } */
 
 .roomrow {
   display: grid;
@@ -298,6 +317,92 @@ body {
 .message-text-container {
   display: block;
   background-color: lime;
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: none;
+  }
+  20% {
+    box-shadow: none;
+  }
+
+  25% {
+    box-shadow: 0 0 2vh 0.5vh rgb(243, 5, 191);
+  }
+
+  25% {
+    box-shadow: 0 0 12vh 0.5vh rgb(184, 243, 5);
+  }
+
+  45% {
+    box-shadow: 0 0 1vh 0.5vh rgba(5, 243, 13, 0.5) inset,
+      0 0 12vh 0.5vh rgb(5, 243, 13);
+  }
+
+  95% {
+    box-shadow: 0 0 1vh 0.5vh rgb(5, 243, 13, 0.5) inset,
+      0 0 2vh 0.5vh rgb(5, 243, 13);
+  }
+  100% {
+    box-shadow: 0 0 2vh 0.5vh rgb(243, 5, 191);
+  }
+}
+
+@keyframes greenFlash {
+  0% {
+    box-shadow: 0 0 2vh 0.5vh limegreen inset, 0 0 1vh 0.5vh limegreen;
+  }
+
+  90% {
+    box-shadow: 0 0 4vh 3.5vh limegreen inset, 0 0 4vh 2.5vh limegreen;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@keyframes shakeX {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-30px);
+  }
+  40% {
+    transform: translateX(30px);
+  }
+  60% {
+    transform: translateX(-20px);
+  }
+  80% {
+    transform: translateX(20px);
+  }
+}
+
+@keyframes flashBg {
+  0% {
+    box-shadow: 0 0 1vh 0.5vh red inset, 0 0 2vh 1.5vh red;
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+.success-anim-detective {
+  animation: glowPulse 500ms ease-out;
+  will-change: box-shadow;
+}
+
+.success-anim-wrapper {
+  animation: greenFlash 600ms ease-in;
+  will-change: box-shadow;
+}
+
+.error-anim {
+  animation: shakeX 300ms ease-in-out, flashBg 300ms ease-out;
+  will-change: transform, box-shadow;
 }
 
 .hidden {
