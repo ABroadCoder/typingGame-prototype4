@@ -1,410 +1,101 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-:root {
-  --wall-color: grey;
-  --room-color: rgb(6, 5, 5);
-  --room-border-color: slategrey;
-}
-
-html {
-  height: 100%;
-}
-
-body {
-  width: 100%;
-  height: 100%;
-  /* min-height: 100vh; */
-  overflow-y: hidden;
-  overflow-x: hidden;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: beige;
-}
-
-.top-wrapper {
-  display: flex;
-  height: 100%;
-  transition: all ease 500ms;
-}
-
-.bottom-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 0%;
-  transition: all ease 500ms;
-}
-
-#left-parent-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  /* background-color: beige; */
-  /* padding: 5px; */
-  margin: 5px;
-  width: 20%;
-  height: 100%;
-}
-
-#map-container {
-  position: relative;
-  display: grid;
-  grid-template-rows: 1fr 20fr 1fr 20fr 1fr 20fr 1fr;
-  background-color: aqua;
-  background-image: none;
-  padding: 5px;
-  width: 80%;
-  height: 100%;
-  margin: 5px;
-}
-
-#typing-wrapper {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  width: max-content;
-  transition: left 300ms ease-out, top 300ms ease-out, transform 300ms ease;
-}
-
-.prompt-container-map {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-  height: 50%;
-  background-color: pink;
-}
-
-.input-container-map {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-  height: 50%;
-  background-color: rgb(217, 143, 68);
-  color: black;
-}
-
-.prompt-letter-box {
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: center;
-  align-items: baseline;
-  font-size: 30px;
-}
-
-.input-letter-box {
-  position: relative;
-  display: flex;
-  flex: 0 0 auto;
-  justify-content: center;
-  align-items: baseline;
-  height: 100%;
-  font-size: 30px;
-  /* background-color: brown; */
-}
-
-.prompt-container-chat {
-  display: flex;
-  height: 50%;
-}
-
-.input-container-chat {
-  display: flex;
-  height: 50%;
-}
-
-.spacer {
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.incorrect-letter {
-  color: red;
-}
-
-.incorrect-space {
-  background-color: red;
-}
-
-.has-cursor {
-  background-color: yellow;
-}
-
-/* .input-letter-box.has-cursor::after {
-  content: ' ';
-  position: relative;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 1ch;
-  background: rgba(255, 235, 59, 0.7); 
-  pointer-events: none;
-  border-radius: 2px;
-  animation: cursor-blink 1s step-end infinite;
- } */
-
-.roomrow {
-  display: grid;
-  grid-template-columns: 1fr 20fr 1fr 20fr 1fr 20fr 1fr;
-}
-
-.room {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--room-color);
-  /* border: solid black 1px; */
-  font-size: 50px;
-}
-
-.room-portrait {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  /* background-color: white; */
-  transform: translate(-50%, -50%);
-  transition: left 300ms ease-out, top 300ms ease-out, transform 300ms ease;
-}
-
-#detective {
-  background-image: url('detective-portrait.png');
-  left: 0;
-  top: 0;
-}
-
-#fugitive {
-  background-image: url('fugitive-portrait.png');
-  left: 0;
-  top: 0;
-}
-
-.wallrow {
-  /* position: relative; */
-  display: grid;
-  grid-template-columns: 1fr 20fr 1fr 20fr 1fr 20fr 1fr;
-}
-
-.wall {
-  position: relative;
-  display: block;
-  background-color: var(--wall-color);
-}
-
-.open {
-  background-color: var(--room-color);
-}
-
-.roomrow > .open:not(.entrance):not(.exit)::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  left: 50%;
-  background-color: var(--room-border-color);
-}
-
-.wallrow > .open:not(.entrance):not(.exit)::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  top: 50%;
-  background-color: var(--room-border-color);
-}
-
-.contains-detective {
-  background-image: url(detective-portrait.png);
-}
-
-.contains-fugitive {
-  background-image: url(fugitive-portrait.png);
-}
-
-#timer-container {
-  background-color: blue;
-  padding: 5px;
-  width: auto;
-  height: 20%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-
-#timer-text {
-  display: flex;
-  background-color: yellow;
-  width: 80%;
-  height: 30%;
-  justify-content: center;
-  align-items: center;
-}
-
-#timer-digits-container {
-  background-color: pink;
-  display: flex;
-  width: auto;
-  height: 30%;
-  justify-content: space-between;
-}
-
-.timer-digits {
-  background-color: orange;
-  font-size: 48px;
-  border: 1px black solid;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: auto;
-  height: 100%;
-}
-
-#message-container {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  justify-content: flex-start;
-  align-items: center;
-  background-color: red;
-  padding: 5px;
-  width: auto;
-  height: 80%;
-}
-
-.message {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  /* justify-content: space-around; */
-  width: 90%;
-  margin: 20px;
-  padding: 5px;
-  background-color: beige;
-}
-
-.message-heading-wrapper {
-  display: flex;
-  justify-content: flex-start;
-  position: relative;
-  margin-bottom: 5px;
-  background-color: orange;
-}
-
-.message-portrait-container {
-  height: 50px;
-  width: 50px;
-  margin-right: 5px;
-  background-size: contain;
-}
-
-.message-name-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  background-color: magenta;
-}
-
-.message-text-container {
-  display: block;
-  background-color: lime;
-}
-
-@keyframes glowPulse {
-  0% {
-    box-shadow: none;
-  }
-  20% {
-    box-shadow: none;
-  }
-
-  25% {
-    box-shadow: 0 0 2vh 0.5vh rgb(243, 5, 191);
-  }
-
-  25% {
-    box-shadow: 0 0 12vh 0.5vh rgb(184, 243, 5);
-  }
-
-  45% {
-    box-shadow: 0 0 1vh 0.5vh rgba(5, 243, 13, 0.5) inset,
-      0 0 12vh 0.5vh rgb(5, 243, 13);
-  }
-
-  95% {
-    box-shadow: 0 0 1vh 0.5vh rgb(5, 243, 13, 0.5) inset,
-      0 0 2vh 0.5vh rgb(5, 243, 13);
-  }
-  100% {
-    box-shadow: 0 0 2vh 0.5vh rgb(243, 5, 191);
-  }
-}
-
-@keyframes greenFlash {
-  0% {
-    box-shadow: 0 0 2vh 0.5vh limegreen inset, 0 0 1vh 0.5vh limegreen;
-  }
-
-  90% {
-    box-shadow: 0 0 4vh 3.5vh limegreen inset, 0 0 4vh 2.5vh limegreen;
-  }
-  100% {
-    box-shadow: none;
-  }
-}
-
-@keyframes shakeX {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(-30px);
-  }
-  40% {
-    transform: translateX(30px);
-  }
-  60% {
-    transform: translateX(-20px);
-  }
-  80% {
-    transform: translateX(20px);
-  }
-}
-
-@keyframes flashBg {
-  0% {
-    box-shadow: 0 0 1vh 0.5vh red inset, 0 0 2vh 1.5vh red;
-  }
-  100% {
-    box-shadow: none;
-  }
-}
-
-.success-anim-detective {
-  animation: glowPulse 500ms ease-out;
-  will-change: box-shadow;
-}
-
-.success-anim-wrapper {
-  animation: greenFlash 600ms ease-in;
-  will-change: box-shadow;
-}
-
-.error-anim {
-  animation: shakeX 300ms ease-in-out, flashBg 300ms ease-out;
-  will-change: transform, box-shadow;
-}
-
-.hidden {
-  display: none;
-}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chase the Fugitive!</title>
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div id="top-wrapper" class="top-wrapper">
+      <div id="left-parent-container">
+        <div id="timer-container">
+          <div id="timer-text">Time left to catch fugitive:</div>
+          <div id="timer-digits-container">
+            <div id="timer-minutes-ones" class="timer-digits">0</div>
+            <div id="timer-colon" class="timer-digits">:</div>
+            <div id="timer-seconds-tens" class="timer-digits">0</div>
+            <div id="timer-seconds-ones" class="timer-digits">0</div>
+          </div>
+        </div>
+        <div id="message-container"></div>
+      </div>
+      <div id="map-container">
+        <div class="wallrow">
+          <div class="wall"></div>
+          <div class="wall open entrance"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+        </div>
+        <div class="roomrow">
+          <div class="wall"></div>
+          <div class="room" id="room9"></div>
+          <div class="wall open"></div>
+          <div class="room" id="room8"></div>
+          <div class="wall open"></div>
+          <div class="room" id="room7"></div>
+          <div class="wall"></div>
+        </div>
+        <div class="wallrow">
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall open"></div>
+          <div class="wall"></div>
+        </div>
+        <div class="roomrow">
+          <div class="wall"></div>
+          <div class="room" id="room2"></div>
+          <div class="wall open"></div>
+          <div class="room" id="room3"></div>
+          <div class="wall"></div>
+          <div class="room" id="room6"></div>
+          <div class="wall"></div>
+        </div>
+        <div class="wallrow">
+          <div class="wall"></div>
+          <div class="wall open"></div>
+          <div class="wall"></div>
+          <div class="wall open"></div>
+          <div class="wall"></div>
+          <div class="wall open"></div>
+          <div class="wall"></div>
+        </div>
+        <div class="roomrow">
+          <div class="wall"></div>
+          <div class="room" id="room1"></div>
+          <div class="wall"></div>
+          <div class="room" id="room4"></div>
+          <div class="wall open"></div>
+          <div class="room" id="room5"></div>
+          <div class="wall"></div>
+        </div>
+        <div class="wallrow">
+          <div class="wall"></div>
+          <div class="wall open exit"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+          <div class="wall"></div>
+        </div>
+        <div id="typing-wrapper">
+          <div id="prompt-container-map" class="prompt-container-map">
+            Text to be typed
+          </div>
+          <div id="input-container-map" class="input-container-map"></div>
+        </div>
+      </div>
+    </div>
+    <div id="bottom-wrapper" class="bottom-wrapper">
+      <div id="prompt-container-chat" class="prompt-container-chat"></div>
+      <div id="input-container-chat" class="input-container-chat"></div>
+    </div>
+  </body>
+</html>
