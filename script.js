@@ -39,6 +39,14 @@ let currentMessageId = -1;
 let currentMapPromptIndex = -1;
 let currentMapTypingIndex = -1;
 
+// Sound effects
+
+const detectiveMovementSound = new Audio('detective-moving.wav');
+detectiveMovementSound.volume = 0.4;
+
+const fugitiveMovementSound = new Audio('fugitive-moving.wav');
+fugitiveMovementSound.volume = 0.8;
+
 // Allowed Keys Data Structure (Built Here in Steps)
 
 const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -89,6 +97,7 @@ const characters = {
     currentRoomNumber: 4,
     currentLeft: '0px',
     currentTop: '0px',
+    movementSound: fugitiveMovementSound,
   },
   detective: {
     name: 'Detective',
@@ -98,6 +107,7 @@ const characters = {
     currentRoomNumber: 1,
     currentLeft: '0px',
     currentTop: '0px',
+    movementSound: detectiveMovementSound,
   },
 };
 
@@ -352,6 +362,9 @@ const moveCharacterRoomPortrait = function (character = String) {
 
   // Multiple portraits in a room => offset x
   fitMultipleRoomPortraits(character);
+
+  // Play appropriate sound effect
+  characters[character].movementSound.play();
 };
 
 // Adjust portrait positions when two are in the same room
@@ -646,6 +659,15 @@ function triggerLoss() {}
 
 document.addEventListener('keydown', e => {
   console.log(`Key pressed: ${e.key}`);
+
+  // Listen for arrow keys
+  if (e.key === 'ArrowLeft') {
+    // Move cursor to previous letter boxes
+  }
+
+  if (e.key === 'ArrowRight') {
+    // Move cursor to subsequent letter boxes
+  }
 
   // Listen for Enter key
   if (e.key === 'Enter') {
